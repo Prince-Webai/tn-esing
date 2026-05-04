@@ -21,6 +21,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'x-tn-esign-bypass': 'TNSolar2026Secure',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Cookie': req.headers.get('cookie') || ''
       }
     })
@@ -72,7 +73,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
         'Authorization': `token ${apiKey}:${apiSecret}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-TN-Esign-Bypass': 'TNSolar2026Secure',
+        'x-tn-esign-bypass': 'TNSolar2026Secure',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
         'Cookie': req.headers.get('cookie') || ''
       },
       body: JSON.stringify(body)
