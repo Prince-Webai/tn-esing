@@ -8,6 +8,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
   const apiKey = process.env.FRAPPE_API_KEY
   const apiSecret = process.env.FRAPPE_API_SECRET
 
+  if (!baseUrl) {
+    return NextResponse.json({ message: 'NEXT_PUBLIC_FRAPPE_URL is not configured' }, { status: 500 })
+  }
+
   const url = `${baseUrl}/api/${path}${searchParams ? '?' + searchParams : ''}`
 
   try {
@@ -20,18 +24,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
       }
     })
 
-    const data = await response.json()
-    const res = NextResponse.json(data, { status: response.status })
+    const contentType = response.headers.get('content-type') || ''
+    let data: any
+    if (contentType.includes('application/json')) {
+      data = await response.json()
+    } else {
+      const text = await response.text()
+      data = { message: text.slice(0, 500) }
+    }
 
-    // Forward Set-Cookie headers from Frappe to the browser
+    const res = NextResponse.json(data, { status: response.status })
     const setCookie = response.headers.get('set-cookie')
     if (setCookie) {
       res.headers.set('set-cookie', setCookie)
     }
-
     return res
   } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 })
+    return NextResponse.json({ message: `Proxy error: ${error.message}`, url }, { status: 500 })
   }
 }
 
@@ -41,9 +50,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
   const baseUrl = process.env.NEXT_PUBLIC_FRAPPE_URL
   const apiKey = process.env.FRAPPE_API_KEY
   const apiSecret = process.env.FRAPPE_API_SECRET
-  const body = await req.json()
+
+  if (!baseUrl) {
+    return NextResponse.json({ message: 'NEXT_PUBLIC_FRAPPE_URL is not configured' }, { status: 500 })
+  }
 
   const url = `${baseUrl}/api/${path}`
+
+  let body: any = {}
+  try {
+    body = await req.json()
+  } catch {
+    // empty body is fine
+  }
 
   try {
     const response = await fetch(url, {
@@ -57,17 +76,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pat
       body: JSON.stringify(body)
     })
 
-    const data = await response.json()
-    const res = NextResponse.json(data, { status: response.status })
+    const contentType = response.headers.get('content-type') || ''
+    let data: any
+    if (contentType.includes('application/json')) {
+      data = await response.json()
+    } else {
+      const text = await response.text()
+      data = { message: text.slice(0, 500) }
+    }
 
-    // Forward Set-Cookie headers from Frappe to the browser
+    const res = NextResponse.json(data, { status: response.status })
     const setCookie = response.headers.get('set-cookie')
     if (setCookie) {
       res.headers.set('set-cookie', setCookie)
     }
-
     return res
   } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 })
+    return NextResponse.json({ message: `Proxy error: ${error.message}`, url }, { status: 500 })
   }
 }
