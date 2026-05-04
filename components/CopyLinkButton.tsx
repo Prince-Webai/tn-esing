@@ -2,11 +2,17 @@
 
 import { useState } from 'react'
 
-export default function CopyLinkButton({ token }: { token: string }) {
+type Props = {
+  link?: string
+  token?: string
+}
+
+export default function CopyLinkButton({ link, token }: Props) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
-    const url = `${window.location.origin}/sign/${token}`
+    const url = link ?? (token ? `${window.location.origin}/sign/${token}` : '')
+    if (!url) return
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
