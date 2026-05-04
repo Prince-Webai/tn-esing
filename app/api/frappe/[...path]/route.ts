@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ path
         'Authorization': `token ${apiKey}:${apiSecret}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-TN-Esign-Bypass': 'TNSolar2026Secure',
+        'x-tn-esign-bypass': 'TNSolar2026Secure',
         'Cookie': req.headers.get('cookie') || ''
       }
     })
